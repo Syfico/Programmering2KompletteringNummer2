@@ -81,17 +81,14 @@ class MagicShop : IGame
         Console.WriteLine("4. Exit");
 
         int choice = 0;
-        int buyId = 0;
-        int sellId = 0;
-
-
         bool validChoice = false;
+
         while (!validChoice)
         {
             if (!int.TryParse(Console.ReadLine(), out choice))
             {
-                    Console.WriteLine("Invalid choice. Please enter a number.");
-                }
+                Console.WriteLine("Invalid choice. Please enter a number.");
+            }
             else
             {
                 validChoice = true;
@@ -105,7 +102,8 @@ class MagicShop : IGame
                 break;
             case 2:
                 Console.WriteLine("Enter the ID of the potion you want to buy:");
-                while (!int.TryParse(Console.ReadLine(), out buyId))
+                int buyId = 0;
+                while (!int.TryParse(Console.ReadLine(), out int buyId))
                 {
                     Console.WriteLine("Invalid ID. Please enter a number.");
                 }
@@ -114,21 +112,18 @@ class MagicShop : IGame
             case 3:
                 Console.WriteLine("Enter the details of the potion you want to sell:");
                 Console.Write("ID: ");
-                while (!int.TryParse(Console.ReadLine(), out sellId))
+                int sellId = 0;
+                while (!int.TryParse(Console.ReadLine(), out int sellId))
                 {
                     Console.WriteLine("Invalid ID. Please enter a number.");
                 }
-                Console.Write("Name: "); // Skriver ut texten "Name: " till konsolfönstret och ber användaren ange namnet på brygden.
-                string? sellName = Console.ReadLine(); // Läser in användarens inmatning från konsolen och tilldelar det till variabeln "sellName". Här används "string?" för att tillåta att variabeln kan vara null.
-                sellName ??= string.Empty; // Om "sellName" är null tilldelas värdet string.Empty (tom sträng) till variabeln.
-
-                Console.Write("Potency: "); 
-                string? sellPotency = Console.ReadLine();
-                sellPotency ??= string.Empty;
-
+                Console.Write("Name: ");
+                string sellName = Console.ReadLine()!;
+                Console.Write("Potency: ");
+                string sellPotency = Console.ReadLine()!;
                 Console.Write("Cost: ");
-                int sellCost;
-                while (!int.TryParse(Console.ReadLine(), out sellCost))
+                int sellCost = 0;
+                while (!int.TryParse(Console.ReadLine(), out int sellCost))
                 {
                     Console.WriteLine("Invalid cost. Please enter a number.");
                 }
@@ -141,6 +136,18 @@ class MagicShop : IGame
             default:
                 Console.WriteLine("Invalid choice. Please try again.");
                 break;
+        }
+
+        Console.WriteLine("Would you like to play again? (Y/N)");
+        string? playAgainInput = Console.ReadLine();
+
+        if (playAgainInput != null && playAgainInput.ToUpper() == "Y")
+        {
+            Play();
+        }
+        else
+        {
+            End();
         }
     }
 
@@ -155,29 +162,10 @@ class Program
     static void Main(string[] args)
     {
         MagicShop magicShop = new MagicShop();
-        magicShop.Start();
         magicShop.AddPotion(new Potion { id = 1, name = "Elixir of Power", potency = "III", cost = 50 });
         magicShop.AddPotion(new Potion { id = 2, name = "Potion of Healing", potency = "I", cost = 20 });
         magicShop.AddPotion(new Potion { id = 3, name = "Mana Tonic", potency = "IV", cost = 75 });
 
         magicShop.Start();
-        bool playAgain = true;
-
-        while (playAgain)
-        {
-            magicShop.Play();   
-            Console.WriteLine("Would you like to play again? (Y/N)");
-            string? playAgainInput = Console.ReadLine();
-
-            if (playAgainInput?.ToUpper() == "Y")
-            {
-                playAgain = true;
-            }
-            else
-            {
-                playAgain = false;
-            }
-        }
     }
 }
-
