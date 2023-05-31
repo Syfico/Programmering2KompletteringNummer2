@@ -19,10 +19,12 @@ class Potion
 class MagicShop : IGame
 {
     private Dictionary<int, Potion> potions;
+    private int souls;
 
-    public MagicShop()
+    public MagicShop(int startingSouls)
     {
         potions = new Dictionary<int, Potion>();
+        souls = startingSouls;
     }
 
     public void AddPotion(Potion potion)
@@ -44,8 +46,16 @@ class MagicShop : IGame
         if (potions.ContainsKey(id))
         {
             Potion potion = potions[id];
-            Console.WriteLine($"You bought the potion \"{potion.name}\" for {potion.cost} souls of the damned.");
-            potions.Remove(id);
+            if (potion.cost <= souls)
+            {
+                Console.WriteLine($"You bought the potion \"{potion.name}\" for {potion.cost} souls of the damned.");
+                souls -= potion.cost;
+                potions.Remove(id);
+            }
+            else
+            {
+                Console.WriteLine("You don't have enough souls to buy this potion.");
+            }
         }
         else
         {
@@ -55,14 +65,27 @@ class MagicShop : IGame
 
     public void SellPotion(Potion potion)
     {
-        if (!potions.ContainsKey(potion.id))
+        potions.Add(potion.id, potion);
+        Console.WriteLine($"You sold the potion \"{potion.name}\" for {potion.cost} souls of the damned.");
+        souls += potion.cost;
+    }
+
+    public bool AttemptToStealPotion(Potion potion, double successRate)
+    {
+        Random random = new Random();
+        double chance = random.NextDouble();
+
+        Console.WriteLine($"There is a {successRate * 100}% chance of successfully stealing the potion.");
+
+        if (chance <= successRate)
         {
-            potions.Add(potion.id, potion);
-            Console.WriteLine($"You sold the potion \"{potion.name}\" for {potion.cost} souls of the damned.");
+            Console.WriteLine($"You successfully stole the potion \"{potion.name}\".");
+            return true;
         }
         else
         {
-            Console.WriteLine("The potion already exists in the shop.");
+            Console.WriteLine("You were caught trying to steal and got executed!");
+            return false;
         }
     }
 
@@ -72,94 +95,104 @@ class MagicShop : IGame
         Play();
     }
 
-public void Play()
-{
-    bool exit = false;
-
-    while (!exit)
+    public void Play()
     {
-        Console.Clear(); // Rensa konsolfönstret
+        bool exit = false;
 
-        Console.WriteLine("What would you like to do?");
-        Console.WriteLine("1. Show available potions");
-        Console.WriteLine("2. Buy a potion");
-        Console.WriteLine("3. Sell a potion");
-        Console.WriteLine("4. Exit");
-
-        int choice = 0;
-        bool validChoice = false;
-
-        while (!validChoice)
+        while (!exit)
         {
-            if (!int.TryParse(Console.ReadLine(), out choice))
+            Console.Clear(); // Rensa konsolfönstret
+
+            Console.WriteLine("What would you like to do?");
+            Console.WriteLine("1. Show available potions");
+            Console.WriteLine("2. Buy a potion");
+            Console.WriteLine("3. Sell a potion");
+            Console.WriteLine("4. Exit");
+
+            int choice = 0;
+            bool validChoice = false;
+
+            while (!validChoice)
             {
-                Console.WriteLine("Invalid choice. Please enter a number.");
+                if (!int.TryParse(Console.ReadLine(), out choice))
+                {
+                    Console.WriteLine("Invalid choice. Please enter a number.");
+                }
+                else
+                {
+                    validChoice = true;
+                }
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Clear(); // Rensa konsolfönstret
+                    ShowAvailablePotions();
+                    Console.WriteLine("Press any key to go back to the main menu.");
+                    Console.ReadKey();
+                    break;
+                case 2:
+                    Console.Clear(); // Rensa konsolfönstret
+                    Console.WriteLine("Enter the ID of the potion you want to buy:");
+                    int buyId = GetUserInputAsInt();
+
+                    BuyPotion(buyId);
+                    Console.WriteLine("Press any key to go back to the main menu.");
+                    Console.ReadKey();
+                    break;
+                case 3:
+                    Console.Clear(); // Rensa konsolfönstret
+                    Console.WriteLine("Enter the details of the potion you want to sell:");
+                    Console.Write("ID: ");
+                    int sellId = GetUserInputAsInt();
+                    Console.Write("Name: ");
+                    string sellName = Console.ReadLine()!;
+                    Console.Write("Potency: ");
+                    string sellPotency = Console.ReadLine()!;
+                    Console.Write("Cost: ");
+                    int sellCost = GetUserInputAsInt();
+                    Potion newPotion = new Potion { id = sellId, name = sellName, potency = sellPotency, cost = sellCost };
+                    SellPotion(newPotion);
+                    Console.WriteLine("Press any key to go back to the main menu.");
+                    Console.ReadKey();
+                    break;
+                case 4:
+                    exit = true;
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+        
+        Console.Clear(); // Rensa konsolfönstret
+        End();
+    }
+
+    public void End()
+    {
+        Console.WriteLine($"Thank you for visiting the Magic Shop. You have {souls} souls of the damned. Goodbye!");
+    }
+
+    private int GetUserInputAsInt()
+    {
+        int input = 0;
+        bool validInput = false;
+
+        while (!validInput)
+        {
+            if (!int.TryParse(Console.ReadLine(), out input))
+            {
+                Console.WriteLine("Invalid input. Please enter a number.");
             }
             else
             {
-                validChoice = true;
+                validInput = true;
             }
         }
 
-        switch (choice)
-        {
-            case 1:
-                Console.Clear(); // Rensa konsolfönstret
-                ShowAvailablePotions();
-                Console.WriteLine("Press any key to go back to the main menu.");
-                Console.ReadKey();
-                break;
-            case 2:
-                Console.Clear(); // Rensa konsolfönstret
-                Console.WriteLine("Enter the ID of the potion you want to buy:");
-                int buyId = 0;
-                while (!int.TryParse(Console.ReadLine(), out buyId))
-                {
-                    Console.WriteLine("Invalid ID. Please enter a number.");
-                }
-                BuyPotion(buyId);
-                Console.WriteLine("Press any key to go back to the main menu.");
-                Console.ReadKey();
-                break;
-            case 3:
-                Console.Clear(); // Rensa konsolfönstret
-                Console.WriteLine("Enter the details of the potion you want to sell:");
-                Console.Write("ID: ");
-                int sellId = 0;
-                while (!int.TryParse(Console.ReadLine(), out sellId))
-                {
-                    Console.WriteLine("Invalid ID. Please enter a number.");
-                }
-                Console.Write("Name: ");
-                string sellName = Console.ReadLine()!;
-                Console.Write("Potency: ");
-                string sellPotency = Console.ReadLine()!;
-                Console.Write("Cost: ");
-                int sellCost = 0;
-                while (!int.TryParse(Console.ReadLine(), out sellCost))
-                {
-                    Console.WriteLine("Invalid cost. Please enter a number.");
-                }
-                Potion newPotion = new Potion { id = sellId, name = sellName, potency = sellPotency, cost = sellCost };
-                SellPotion(newPotion);
-                Console.WriteLine("Press any key to go back to the main menu.");
-                Console.ReadKey();
-                break;
-            case 4:
-                exit = true;
-                break;
-            default:
-                Console.WriteLine("Invalid choice. Please try again.");
-                break;
-        }
-    }
-
-    Console.Clear(); // Rensa konsolfönstret
-    End();
-}
-    public void End()
-    {
-        Console.WriteLine("Thank you for visiting the Magic Shop. Goodbye!");
+        return input;
     }
 }
 
@@ -167,8 +200,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        MagicShop magicShop = new MagicShop();
-        
+        MagicShop magicShop = new MagicShop(100); // Starting with 100 souls
+
         magicShop.AddPotion(new Potion { id = 1, name = "Elixir of Power", potency = "III", cost = 50 });
         magicShop.AddPotion(new Potion { id = 2, name = "Potion of Healing", potency = "I", cost = 20 });
         magicShop.AddPotion(new Potion { id = 3, name = "Mana Tonic", potency = "IV", cost = 75 });
