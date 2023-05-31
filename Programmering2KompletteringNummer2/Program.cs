@@ -157,10 +157,6 @@ public void Play()
     Console.Clear(); // Rensa konsolfönstret
     End();
 }
-
-
-
-
     public void End()
     {
         Console.WriteLine("Thank you for visiting the Magic Shop. Goodbye!");
